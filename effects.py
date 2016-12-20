@@ -31,7 +31,18 @@ def clip_n(input_data, n):
 		return input_data
 
 
-def robotization(input_string): 
+def robotization(input_string, BLOCKSIZE): 
+	'''
+	Parameters : 
+	BLOCKSIZE : size of the block, type int
+	input_string : input string of audio data of size BLOCKSIZE, type string
+	
+	Returns: 
+	output_string : robotized version of input_string , type string 
+	
+	Brief: 
+	Converts the input_string into robotzed output_stirng 
+	'''
 	input_tuple = struct.unpack('h' * BLOCKSIZE * 2, input_string)
 
     spect = np.fft.fft(input_tuple)
@@ -39,8 +50,8 @@ def robotization(input_string):
 	for n in range(0,len(output)):
         output_block[n] = clip_n(output[n], 16)
 		# output_block[n] = output[n]
-			
-	return output_block	
+	output_string = struct.pack('h' * 2 *  BLOCKSIZE, *output_block)	
+	return output_string	
 
 def whisperisation(input_stream): 
 
