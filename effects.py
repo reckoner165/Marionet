@@ -7,6 +7,8 @@ input stream of audio. This file is a part of DSP final project.
 # Drumil Mahajan, New York University, School of Engineering, 
 # Class of 2017. 
 
+import random
+import cmath
 	
 	
 def clip_n(input_data, n):
@@ -31,35 +33,61 @@ def clip_n(input_data, n):
 		return input_data
 
 
-def robotization(input_string, BLOCKSIZE): 
+def robotization(input_tuple, BLOCKSIZE): 
 	'''
 	Parameters : 
 	BLOCKSIZE : size of the block, type int
-	input_string : input string of audio data of size BLOCKSIZE, type string
+	input_string : input tuple of audio data of size BLOCKSIZE, type int
 	
 	Returns: 
-	output_string : robotized version of input_string , type string 
+	output_block : list of output data. type int 
 	
 	Brief: 
-	Converts the input_string into robotzed output_stirng 
+	Converts the input_string into robotized output_block
 	'''
-	input_tuple = struct.unpack('h' * BLOCKSIZE * 2, input_string)
+	
+	#input_tuple = struct.unpack('h' * BLOCKSIZE * 2, input_string)
+	output_block = [0 for n in range(0, 2* BLOCKSIZE)]
 
     spect = np.fft.fft(input_tuple)
 	output = np.fft.ifft(np.absolute(spect))
 	for n in range(0,len(output)):
         output_block[n] = clip_n(output[n], 16)
 		# output_block[n] = output[n]
-	output_string = struct.pack('h' * 2 *  BLOCKSIZE, *output_block)	
-	return output_string	
+	#output_string = struct.pack('h' * 2 *  BLOCKSIZE, *output_block)	
+	return output_block	
 
-def whisperisation(input_stream): 
+def whisperisation(input_tuple, BLOCKSIZE): 
+	'''
+	Parameters : 
+	BLOCKSIZE : size of the block, type int
+	input_string : input tuple of audio data of size BLOCKSIZE, type int
+	
+	Returns: 
+	output_block : list of output data. type int 
+	
+	Brief: 
+	Converts the input_string into whisperization output_block
+	'''
+	
+	output_block = [0 for n in range(0, BLOCKSIZE)]
+	
+	random_phase = 2 * cmath.pi * random.random()
+	random_complex = cmath.cos(random_phase) + (cmath.sin(random_phase))j
+	
+	spect = np.fft.fft(input_tuple)
+	output = np.fft.ifft(np.absolute(spect) * random_complex)
+	
+	for n in range(0,len(output)):
+		output_block[n] = clip_n(output[n], 16)
+	
+	return output_block	
+	
 
-def vibrato(): 
+def vibrato():
 
-def band_pass(self, low, high): 
 
-def butter_bandpass(self,lowcut, highcut, fs, order):
+def butter_bandpass(data, lowcut, highcut, fs, order):
 	nyq = 0.5 * fs
 	low = lowcut / nyq
 	high = highcut / nyq
@@ -68,9 +96,6 @@ def butter_bandpass(self,lowcut, highcut, fs, order):
 	return y
 
 
-def butter_bandpass_filter(self, data, lowcut, highcut, fs, order=5):
-	
-	return y
 		
 	
 	
