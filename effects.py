@@ -52,7 +52,7 @@ def robotization(input_tuple, BLOCKSIZE):
 	'''
 	
 	#input_tuple = struct.unpack('h' * BLOCKSIZE * 2, input_string)
-	output_block = [0 for n in range(0, 2* BLOCKSIZE)]
+	output_block = [0 for n in range(0, 2 * BLOCKSIZE)]
 
     spect = np.fft.fft(input_tuple)
 	output = np.fft.ifft(np.absolute(spect))
@@ -75,7 +75,7 @@ def whisperisation(input_tuple, BLOCKSIZE):
 	Converts the input_string into whisperization output_block
 	'''
 	
-	output_block = [0 for n in range(0, BLOCKSIZE)]
+	output_block = [0 for n in range(0, 2 * BLOCKSIZE)]
 	
 	random_phase = 2 * cmath.pi * random.random()
 	random_complex = cmath.cos(random_phase) + (cmath.sin(random_phase))j
