@@ -9,6 +9,11 @@ input stream of audio. This file is a part of DSP final project.
 
 import random
 import cmath
+import pyaudio
+import struct
+import wave
+import math
+import numpy as np
 	
 	
 def clip_n(input_data, n):
@@ -84,7 +89,71 @@ def whisperisation(input_tuple, BLOCKSIZE):
 	return output_block	
 	
 
-def vibrato():
+def vibrato(BLOCKSIZE):
+	for n in range(0, BLOCKSIZE):
+        
+    # Get previous and next buffer values (since kr is fractional)
+    # Processing for left channel
+        kr_prev = int(math.floor(kr))               
+        kr_next = kr_prev + 1
+        frac = kr - kr_prev    # 0 <= frac < 1
+        if kr_next >= buffer_MAX:
+            kr_next = kr_next - buffer_MAX
+    
+
+        # Compute output value using interpolation
+        output_value_L = (1-frac) * buffer[kr_prev] + frac * buffer[kr_next]
+
+        # Update buffer (pure delay)
+        buffer[kw] = input_value[n]
+
+        # Increment read index
+        kr = kr + 1 + W * math.sin( 2 * math.pi * f0 * n / RATE )
+            # Note: kr is fractional (not integer!)
+
+        # Ensure that 0 <= kr < buffer_MAX
+        if kr >= buffer_MAX:
+            # End of buffer. Circle back to front.
+            kr = 0
+
+        # Increment write index    
+        kw = kw + 1
+        if kw == buffer_MAX:
+            # End of buffer. Circle back to front.
+            kw = 0
+        
+        # Processing for Right channel     
+        kr_prev_R = int(math.floor(kr_R))               
+        kr_next_R = kr_prev_R + 1
+        frac_R = kr_R - kr_prev_R    # 0 <= frac < 1
+        if kr_next_R >= buffer_MAX_R:
+            kr_next_R = kr_next_R - buffer_MAX_R
+    
+
+        # Compute output value using interpolation
+        output_value_R = (1-frac_R) * buffer_R[kr_prev_R] + frac_R * buffer_R[kr_next_R]
+
+        # Update buffer (pure delay)
+        buffer_R[kw] = input_value[n]
+
+        # Increment read index
+        kr_R = kr_R + 1 + W_R * math.sin( 2 * math.pi * f0_R * n / RATE )
+        # Note: kr is fractional (not integer!)
+
+        # Ensure that 0 <= kr < buffer_MAX
+        if kr_R >= buffer_MAX_R:
+            # End of buffer. Circle back to front.
+            kr_R = 0
+
+        # Increment write index    
+        kw_R = kw_R + 1
+        if kw_R == buffer_MAX_R:
+            # End of buffer. Circle back to front.
+            kw_R = 0    
+
+        # clip and put output values in two channels
+        output_block[2*n] = clip16(output_value_L)
+        output_block[2*n + 1] = clip16(output_value_R)
 
 
 def butter_bandpass(data, lowcut, highcut, fs, order):
