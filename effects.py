@@ -62,7 +62,7 @@ def robotization(input_tuple, BLOCKSIZE):
 	#output_string = struct.pack('h' * 2 *  BLOCKSIZE, *output_block)	
 	return output_block	
 
-def whisperisation(input_tuple, BLOCKSIZE): 
+def whisperisation(input_tuple, BLOCKSIZE, window_size): 
 	'''
 	Parameters : 
 	BLOCKSIZE : size of the block, type int
@@ -75,16 +75,21 @@ def whisperisation(input_tuple, BLOCKSIZE):
 	Converts the input_string into whisperization output_block
 	'''
 	
-	output_block = [0 for n in range(0, 2 * BLOCKSIZE)]
+	#output_block = [0 for n in range(0, 2 * BLOCKSIZE)]
+	output_block = []
+	output_temp = 0 for n in range(0, window_size)
+	blocks = BLOCKSIZE/ window_size
+	for i in blocks: 
 	
-	random_phase = 2 * cmath.pi * random.random()
-	random_complex = cmath.cos(random_phase) + (cmath.sin(random_phase))j
-	
-	spect = np.fft.fft(input_tuple)
-	output = np.fft.ifft(np.absolute(spect) * random_complex)
-	
-	for n in range(0,len(output)):
-		output_block[n] = clip_n(output[n], 16)
+		random_phase = 2 * cmath.pi * random.random()
+		random_complex = cmath.cos(random_phase) + (cmath.sin(random_phase))j
+		
+		spect = np.fft.fft(input_tuple[i*window_size, i*window_size + 1])
+		output = np.fft.ifft(np.absolute(spect) * random_complex)
+		
+		for n in range(0,len(output)):
+			output_temp[n] = clip_n(output[n], 16)
+		output_block += output_temp
 	
 	return output_block	
 	
